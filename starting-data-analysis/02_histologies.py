@@ -40,14 +40,14 @@ print(ns_filtered_data)
 
 
 # # # 5. count sample numbers
-print(oac_filtered_data[' ID_SAMPLE'].value_counts())  # 323
-print(oscc_filtered_data[' ID_SAMPLE'].value_counts())  # 788
-print(ns_filtered_data[' ID_SAMPLE'].value_counts())  # 192
+oac_count = (len(oac_filtered_data[' ID_SAMPLE'].value_counts()))  # 323
+oscc_count = (len(oscc_filtered_data[' ID_SAMPLE'].value_counts()))  # 788
+ns_count = (len(ns_filtered_data[' ID_SAMPLE'].value_counts()))  # 192
 
 
 # # # 6. pie chart of histologies
 pie_cancer_type = ['Adenocarcinoma', 'Squamous cell carcinoma', 'Not specified']
-pie_cancer_counts = [323, 788, 192]
+pie_cancer_counts = [oac_count, oscc_count, ns_count]
 
 colour = color_discrete_sequence = px.colors.qualitative.G10
 
