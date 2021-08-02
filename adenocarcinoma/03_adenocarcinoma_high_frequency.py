@@ -11,8 +11,13 @@ Create a histogram of the high frequency mutations
 Search for frequency of individual genes that are significant in data
 """
 
-adenocarcinoma = pandas.read_csv('adenocarcinoma-csv/02_cosmic_adenocarcinoma_only.csv',
-                                 header=0, sep=",", index_col=None, low_memory=False)
+adenocarcinoma = pandas.read_csv(
+    "adenocarcinoma-csv/02_cosmic_adenocarcinoma_only.csv",
+    header=0,
+    sep=",",
+    index_col=None,
+    low_memory=False,
+)
 
 headers = adenocarcinoma.columns.tolist()
 # print(headers)
@@ -20,74 +25,114 @@ headers = adenocarcinoma.columns.tolist()
 
 
 # # # 1. Remove silent coding adenocarcinoma data and create new csv
-filtered_data = adenocarcinoma[~adenocarcinoma[' MUTATION_AA'].str.contains('(?:p.\?)$') & ~adenocarcinoma[
-    ' MUTATION_DESCRIPTION'].str.contains('(?:Substitution - coding silent)$')]
+filtered_data = adenocarcinoma[
+    ~adenocarcinoma[" MUTATION_AA"].str.contains("(?:p.\?)$")
+    & ~adenocarcinoma[" MUTATION_DESCRIPTION"].str.contains(
+        "(?:Substitution - coding silent)$"
+    )
+]
 # print(filtered_data.value_counts().head())
-filtered_data.to_csv('../adenocarcinoma/adenocarcinoma-csv/03_filtered_cosmic_adenocarcinoma.csv', index=False)
+filtered_data.to_csv(
+    "../adenocarcinoma/adenocarcinoma-csv/03_filtered_cosmic_adenocarcinoma.csv",
+    index=False,
+)
 
 
 # # # 2. Genes mutated in at least 5% of samples (high frequency genes)
-sample_count = len(filtered_data[' ID_SAMPLE'].value_counts())  # samples = 323 # 10% = 32 genes
+sample_count = len(
+    filtered_data[" ID_SAMPLE"].value_counts()
+)  # samples = 323 # 10% = 32 genes
 print(sample_count)
 
 five_percent = sample_count * 0.05  # 16.15
 print(five_percent)
 
-gene_count = filtered_data['GENE_NAME'].value_counts()
+gene_count = filtered_data["GENE_NAME"].value_counts()
 print(gene_count)
 five_percent_plus = gene_count[gene_count >= five_percent].reset_index()
-five_percent_plus.columns = ['GENE_NAME', 'Count']
+five_percent_plus.columns = ["GENE_NAME", "Count"]
 # print(five_percent_plus)
-five_percent_plus = five_percent_plus.rename(columns={'GENE_NAME': 'Gene Name'})
+five_percent_plus = five_percent_plus.rename(columns={"GENE_NAME": "Gene Name"})
 # print(five_percent_plus)
-five_percent_plus['Percentage'] = ((five_percent_plus['Count'] / sample_count) * 100).to_frame()
+five_percent_plus["Percentage"] = (
+    (five_percent_plus["Count"] / sample_count) * 100
+).to_frame()
 print(five_percent_plus)
 five_percent_plus.to_csv(
-    '../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations(above_five_percent).csv',
-    index=False)
+    "../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations(above_five_percent).csv",
+    index=False,
+)
 
 
 # # # 3. Histogram of high frequency genes
-fig = px.histogram(five_percent_plus, x=['Gene Name'], y='Percentage',
-                   title=None, color_discrete_sequence=px.colors.qualitative.G10)
-fig.update_layout(yaxis_title_text='Percentage of samples gene is mutated in', xaxis_title_text='Gene')
+fig = px.histogram(
+    five_percent_plus,
+    x=["Gene Name"],
+    y="Percentage",
+    title=None,
+    color_discrete_sequence=px.colors.qualitative.G10,
+)
+fig.update_layout(
+    yaxis_title_text="Percentage of samples gene is mutated in", xaxis_title_text="Gene"
+)
 fig.update_layout(legend_title=None, legend_font_size=25)
 fig.update_layout(xaxis_title_font_size=25, yaxis_title_font_size=25)
 fig.update_layout(showlegend=False)
 fig.update_xaxes(tickangle=45, tickfont=dict(size=20))
 fig.update_yaxes(tickfont=dict(size=20))
 fig.update_yaxes(range=[0, 100])
-# fig.show()
+fig.show()
 
-fig.write_image('../figures/histograms/high_frequency_adenocarcinoma.png', width=1920, height=1080, scale=1)
+fig.write_image(
+    "../figures/histograms/high_frequency_adenocarcinoma.png",
+    width=1920,
+    height=1080,
+    scale=1,
+)
 
 
 # # # 4. check percentage of samples that contain a specific mutation
 
-five_percent = pandas.read_csv('../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations'
-                               '(above_five_percent).csv', header=0, sep=',')
+five_percent = pandas.read_csv(
+    "../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations"
+    "(above_five_percent).csv",
+    header=0,
+    sep=",",
+)
 
-filtered_adenocarcinoma = pandas.read_csv('../adenocarcinoma/adenocarcinoma-csv/03_filtered_cosmic_adenocarcinoma.csv',
-                                          header=0, sep=',')
+filtered_adenocarcinoma = pandas.read_csv(
+    "../adenocarcinoma/adenocarcinoma-csv/03_filtered_cosmic_adenocarcinoma.csv",
+    header=0,
+    sep=",",
+)
 
-patient = ' ID_SAMPLE'
-gene_name = 'GENE_NAME'
+patient = " ID_SAMPLE"
+gene_name = "GENE_NAME"
 
-five_percent_patients = filtered_adenocarcinoma.loc[filtered_adenocarcinoma[gene_name].isin(five_percent['Gene Name'])]
+five_percent_patients = filtered_adenocarcinoma.loc[
+    filtered_adenocarcinoma[gene_name].isin(five_percent["Gene Name"])
+]
 # print(five_percent_patients)
 
-check_full_patients = filtered_adenocarcinoma.loc[filtered_adenocarcinoma[patient].isin(
-    five_percent_patients[patient])][[patient, gene_name]]
+check_full_patients = filtered_adenocarcinoma.loc[
+    filtered_adenocarcinoma[patient].isin(five_percent_patients[patient])
+][[patient, gene_name]]
 # print(check_full_patients)
 
 # # # ARID1A
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'ARID1A']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "ARID1A"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -96,13 +141,19 @@ print(percentage)
 
 
 # # # ERBB4
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'ERBB4']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "ERBB4"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -110,13 +161,19 @@ percentage = (samples / 298) * 100
 print(percentage)
 
 # # # APC
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'APC']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "APC"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -125,13 +182,19 @@ print(percentage)
 
 
 # # # SMAD4
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'SMAD4']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "SMAD4"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 print(count)
 samples = count.count()
 print(samples)
@@ -140,13 +203,19 @@ print(percentage)
 
 
 # # # LRP1B
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'LRP1B']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "LRP1B"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -155,13 +224,19 @@ print(percentage)
 
 
 # # # FAT4
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'FAT4']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "FAT4"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -170,13 +245,19 @@ print(percentage)
 
 
 # # # PTPRD
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'PTPRD']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "PTPRD"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -185,13 +266,19 @@ print(percentage)
 
 
 # # # CDKN2A
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'CDKN2A']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "CDKN2A"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -200,13 +287,19 @@ print(percentage)
 
 
 # # # CTNNA2
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'CTNNA2']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "CTNNA2"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)
@@ -215,13 +308,19 @@ print(percentage)
 
 
 # # # MUC16
-mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[
-    x == 'MUC16']).to_frame().reset_index()
-mutational_load_filter.drop(columns='level_1', inplace=True)
+mutational_load_filter = (
+    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+    .apply(lambda x: x[x == "MUC16"])
+    .to_frame()
+    .reset_index()
+)
+mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[check_full_patients[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+compare = check_full_patients.loc[
+    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+]
 # print(compare)
-count = compare[' ID_SAMPLE'].value_counts()
+count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
 samples = count.count()
 print(samples)

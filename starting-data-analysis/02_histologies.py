@@ -13,48 +13,80 @@ Count number of samples and create a pie chart of the distribution of histologie
 """
 
 
-
 # # # 1. Read filtered data
-filtered_duplicates = pandas.read_csv('../00-database-csv/cosmic_data_duplicates_removed.csv', header=0, sep=',',
-                                      low_memory=False)
+filtered_duplicates = pandas.read_csv(
+    "../00-database-csv/cosmic_data_duplicates_removed.csv",
+    header=0,
+    sep=",",
+    low_memory=False,
+)
 print(filtered_duplicates)
 
 
 # # # 2. create CSV that is filtered for adenocarcinoma (OAC)
-oac_filtered_data = filtered_duplicates[filtered_duplicates[' HISTOLOGY_SUBTYPE_1'].str.contains('(?:adenocarcinoma)$')]
+oac_filtered_data = filtered_duplicates[
+    filtered_duplicates[" HISTOLOGY_SUBTYPE_1"].str.contains("(?:adenocarcinoma)$")
+]
 print(oac_filtered_data)
-oac_filtered_data.to_csv('../adenocarcinoma/adenocarcinoma-csv/02_cosmic_adenocarcinoma_only.csv', index=False)
+oac_filtered_data.to_csv(
+    "../adenocarcinoma/adenocarcinoma-csv/02_cosmic_adenocarcinoma_only.csv",
+    index=False,
+)
 
 
 # # # 3. Create CSV that is filtered for squamous cell carcinoma (OSCC)
 oscc_filtered_data = filtered_duplicates[
-    filtered_duplicates[' HISTOLOGY_SUBTYPE_1'].str.contains('(?:squamous_cell_carcinoma)$')]
+    filtered_duplicates[" HISTOLOGY_SUBTYPE_1"].str.contains(
+        "(?:squamous_cell_carcinoma)$"
+    )
+]
 print(oscc_filtered_data)
-oscc_filtered_data.to_csv('../squamous-cell-carcinoma/squamous-cell-carcinoma-csv/02_cosmic_squamous_cell_only.csv',
-                          index=False)
+oscc_filtered_data.to_csv(
+    "../squamous-cell-carcinoma/squamous-cell-carcinoma-csv/02_cosmic_squamous_cell_only.csv",
+    index=False,
+)
 
 
 # # # 4. filter for non-specified samples
-ns_filtered_data = filtered_duplicates[filtered_duplicates[' HISTOLOGY_SUBTYPE_1'].str.contains('(?:NS)$')]
+ns_filtered_data = filtered_duplicates[
+    filtered_duplicates[" HISTOLOGY_SUBTYPE_1"].str.contains("(?:NS)$")
+]
 print(ns_filtered_data)
 
 
 # # # 5. count sample numbers
-oac_count = (len(oac_filtered_data[' ID_SAMPLE'].value_counts()))  # 323
-oscc_count = (len(oscc_filtered_data[' ID_SAMPLE'].value_counts()))  # 788
-ns_count = (len(ns_filtered_data[' ID_SAMPLE'].value_counts()))  # 192
+oac_count = len(oac_filtered_data[" ID_SAMPLE"].value_counts())  # 323
+oscc_count = len(oscc_filtered_data[" ID_SAMPLE"].value_counts())  # 788
+ns_count = len(ns_filtered_data[" ID_SAMPLE"].value_counts())  # 192
 
 
 # # # 6. pie chart of histologies
-pie_cancer_type = ['Adenocarcinoma', 'Squamous cell carcinoma', 'Not specified']
+pie_cancer_type = ["Adenocarcinoma", "Squamous cell carcinoma", "Not specified"]
 pie_cancer_counts = [oac_count, oscc_count, ns_count]
 
 colour = color_discrete_sequence = px.colors.qualitative.G10
 
 fig = go.Figure(data=[go.Pie(labels=pie_cancer_type, values=pie_cancer_counts)])
-fig.update_traces(textposition='inside', marker=dict(colors=colour))
-fig.update_layout(uniformtext_minsize=40, uniformtext_mode='hide')
-fig.update_layout(legend=dict(orientation='v', yanchor='middle', y=1.02, xanchor='right', x=1,), legend_font_size=35)
-fig.update_layout(title_x=0.02, title_y=0.05, title_xanchor='left', title_yanchor='bottom', title_font_size=20)
+fig.update_traces(textposition="inside", marker=dict(colors=colour))
+fig.update_layout(uniformtext_minsize=40, uniformtext_mode="hide")
+fig.update_layout(
+    legend=dict(
+        orientation="v",
+        yanchor="middle",
+        y=1.02,
+        xanchor="right",
+        x=1,
+    ),
+    legend_font_size=35,
+)
+fig.update_layout(
+    title_x=0.02,
+    title_y=0.05,
+    title_xanchor="left",
+    title_yanchor="bottom",
+    title_font_size=20,
+)
 fig.show()
-fig.write_image('../figures/pie-charts/oc_histologies.png', width=1920, height=1080, scale=1)
+fig.write_image(
+    "../figures/pie-charts/oc_histologies.png", width=1920, height=1080, scale=1
+)
