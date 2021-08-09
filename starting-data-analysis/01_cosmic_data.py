@@ -19,9 +19,7 @@ print(data["GENE_NAME"].head(50))
 
 
 # # # 3. remove duplicates
-filtered_data = data[
-    ~data["GENE_NAME"].str.contains("(?:ENST\d*)$")
-]
+filtered_data = data[~data["GENE_NAME"].str.contains("(?:ENST\d*)$")]
 print(filtered_data)
 filtered_data.to_csv(
     "../00-database-csv/cosmic_data_duplicates_removed.csv", index=False

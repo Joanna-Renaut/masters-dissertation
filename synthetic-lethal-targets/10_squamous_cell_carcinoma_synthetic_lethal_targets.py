@@ -6,8 +6,7 @@ Count how many tumour suppressors had SSL targets and how many SSL partners ther
 """
 
 oac_data = pandas.read_csv(
-    "../tumour-suppressors-oncogenes/tumour-suppressors-oncogenes-csv/"
-    "08_squamous cell_pathogenic_LOF_tumour_suppressors.csv",
+    "../tumour-suppressors-oncogenes/tumour-suppressors-oncogenes-csv/08_squamous cell_tumour_suppressors.csv",
     header=0,
     sep=",",
 )
@@ -23,7 +22,7 @@ SSL_targets = slorth_data.loc[gene.isin(oac_data["Gene Name"])]
 SSL_targets = SSL_targets[SSL_targets["Synthetic Lethality Score"] >= 0.75]
 # print(SSL_targets)
 SSL_targets = SSL_targets[["Gene Name A", "Gene Name B", "Synthetic Lethality Score"]]
-print(SSL_targets)
+# print(SSL_targets)
 
 SSL_targets.to_csv(
     "../synthetic-lethal-targets/synthetic-lethal-targets-csv/10_squamous_cell_SSL_targets.csv",
@@ -35,10 +34,10 @@ SSL_targets.to_csv(
 count_genes = SSL_targets["Gene Name A"].value_counts()
 print(count_genes)
 genes = count_genes.count()
-print(genes)
+# print(genes)
 
 # # # 3. Count how many SSL partners there are
 count_targets = SSL_targets["Gene Name B"].value_counts()
-print(count_targets.head(50))
+# print(count_targets)
 target_genes = count_targets.count()
-print(target_genes)
+# print(target_genes)

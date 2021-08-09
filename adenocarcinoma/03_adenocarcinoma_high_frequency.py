@@ -42,13 +42,13 @@ filtered_data.to_csv(
 sample_count = len(
     filtered_data[" ID_SAMPLE"].value_counts()
 )  # samples = 323 # 10% = 32 genes
-print(sample_count)
+# print(sample_count)
 
 five_percent = sample_count * 0.05  # 16.15
-print(five_percent)
+# print(five_percent)
 
 gene_count = filtered_data["GENE_NAME"].value_counts()
-print(gene_count)
+# print(gene_count)
 five_percent_plus = gene_count[gene_count >= five_percent].reset_index()
 five_percent_plus.columns = ["GENE_NAME", "Count"]
 # print(five_percent_plus)
@@ -57,17 +57,40 @@ five_percent_plus = five_percent_plus.rename(columns={"GENE_NAME": "Gene Name"})
 five_percent_plus["Percentage"] = (
     (five_percent_plus["Count"] / sample_count) * 100
 ).to_frame()
-print(five_percent_plus)
+# print(five_percent_plus)
 five_percent_plus.to_csv(
     "../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations(above_five_percent).csv",
     index=False,
 )
 
+# # # 3. count percentage in >5%
+fivePercentData = pandas.read_csv(
+    "../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations(above_five_percent).csv",
+    header=0,
+    sep=",",
+)
 
-# # # 3. Histogram of high frequency genes
+fivePercent = filtered_data.loc[
+    filtered_data["GENE_NAME"].isin(fivePercentData["Gene Name"])
+]
+
+sample_count = len(fivePercent[" ID_SAMPLE"].value_counts())
+# print(sample_count)
+gene_count = fivePercent["GENE_NAME"].value_counts().to_frame("counts").reset_index()
+# print(gene_count)
+data = gene_count
+data["Percentage"] = ((gene_count["counts"] / sample_count) * 100).to_frame()
+# print(data)
+data.to_csv(
+    "../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_5%_percentages.csv",
+    index=False,
+)
+
+
+# # # 4. Histogram of high frequency genes
 fig = px.histogram(
-    five_percent_plus,
-    x=["Gene Name"],
+    data,
+    x=["index"],
     y="Percentage",
     title=None,
     color_discrete_sequence=px.colors.qualitative.G10,
@@ -91,7 +114,7 @@ fig.write_image(
 )
 
 
-# # # 4. check percentage of samples that contain a specific mutation
+# # # 5. check percentage of samples that contain a specific mutation
 
 five_percent = pandas.read_csv(
     "../adenocarcinoma/adenocarcinoma-csv/03_adenocarcinoma_high_frequency_mutations"
@@ -118,211 +141,306 @@ check_full_patients = filtered_adenocarcinoma.loc[
     filtered_adenocarcinoma[patient].isin(five_percent_patients[patient])
 ][[patient, gene_name]]
 # print(check_full_patients)
+# print(check_full_patients[' ID_SAMPLE'].value_counts())
 
-# # # ARID1A
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "ARID1A"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
+# # # # ARID1A
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "ARID1A"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # ERBB4
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "ERBB4"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+# # # # APC
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "APC"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # SMAD4
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "SMAD4"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # LRP1B
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "LRP1B"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # FAT4
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "FAT4"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # PTPRD
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "PTPRD"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # CDKN2A
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "CDKN2A"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+#
+#
+# # # # CTNNA2
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "CTNNA2"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
 
 
-# # # ERBB4
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "ERBB4"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
+# # # # MUC16
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "MUC16"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+
+
+# # # # TTN
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "TTN"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
+# # print(mutational_load_filter)
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
+# # print(compare)
+# count = compare[" ID_SAMPLE"].value_counts()
+# # print(count)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
+
+
+# # # # TP53
+# mutational_load_filter = (
+#     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
+#     .apply(lambda x: x[x == "TP53"])
+#     .to_frame()
+#     .reset_index()
+# )
+# mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
+# compare = check_full_patients.loc[
+#     check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+# ]
 # print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
+# count = compare[" ID_SAMPLE"].value_counts()
 # print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
+# samples = count.count()
+# print(samples)
+# percentage = (samples / 298) * 100
+# print(percentage)
 
-# # # APC
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "APC"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
+
+# # # Mutation rates of TTN
+
+# # # has TTN
+# mutational_load_main_data = check_full_patients
+# muc_count = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[x == 'TTN'])
+# # print(muc_count)
+# mutational_load_filter = check_full_patients.groupby(' ID_SAMPLE')['GENE_NAME'].apply(lambda x: x[x == 'TTN']).to_frame().reset_index()
+# mutational_load_filter.drop(columns='level_1', inplace=True)
+# # print(mutational_load_filter)
+#
+# compare = mutational_load_main_data.loc[mutational_load_main_data[' ID_SAMPLE'].isin(mutational_load_filter[' ID_SAMPLE'])]
+# # print(compare)
+#
+# count = compare[' ID_SAMPLE'].value_counts()
 # print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
+#
+# total = count.sum()
+# print(total)
+#
+# average = total / len(count)
+# print(average)
 
-
-# # # SMAD4
+# # # NO TTN
+mutational_load_main_data = check_full_patients
+ttn_count = check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"].apply(
+    lambda x: x[x != "TTN"]
+)
+# print(muc_count)
 mutational_load_filter = (
     check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "SMAD4"])
+    .apply(lambda x: x[x == "TTN"])
     .to_frame()
     .reset_index()
 )
 mutational_load_filter.drop(columns="level_1", inplace=True)
 # print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
+#
+compare = mutational_load_main_data.loc[
+    ~mutational_load_main_data[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
 ]
 # print(compare)
+
 count = compare[" ID_SAMPLE"].value_counts()
 print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
 
+total = count.sum()
+print(total)
 
-# # # LRP1B
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "LRP1B"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
-# print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
-
-
-# # # FAT4
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "FAT4"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
-# print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
-
-
-# # # PTPRD
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "PTPRD"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
-# print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
-
-
-# # # CDKN2A
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "CDKN2A"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
-# print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
-
-
-# # # CTNNA2
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "CTNNA2"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
-# print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
-
-
-# # # MUC16
-mutational_load_filter = (
-    check_full_patients.groupby(" ID_SAMPLE")["GENE_NAME"]
-    .apply(lambda x: x[x == "MUC16"])
-    .to_frame()
-    .reset_index()
-)
-mutational_load_filter.drop(columns="level_1", inplace=True)
-# print(mutational_load_filter)
-compare = check_full_patients.loc[
-    check_full_patients[" ID_SAMPLE"].isin(mutational_load_filter[" ID_SAMPLE"])
-]
-# print(compare)
-count = compare[" ID_SAMPLE"].value_counts()
-# print(count)
-samples = count.count()
-print(samples)
-percentage = (samples / 298) * 100
-print(percentage)
+average = total / len(count)
+print(average)

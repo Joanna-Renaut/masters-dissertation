@@ -10,7 +10,7 @@ tumour-suppressors-oncogenes/tumour-suppressors-oncogenes-csv
 synthetic-lethal-targets/synthetic-lethal-targets-csv
 squamous-cell-carcinoma/squamous-cell-carcinoma-csv
 personalised-regimes/personalised-regimes-csv
-over-under-expression/over-under-expression-csv
+over-under-expression-&-CNV-gain-loss/over-under-expression-&-CNV-gain-loss-csv
 making-drug-databases/making-drug-databases-csv
 druggability/druggability-csv
 drugbank/drugbank_full.xml
@@ -18,3 +18,5 @@ drugbank/drugbank.xsd
 drugbank/jeff_heaton_xml.py
 adenocarcinoma/adenocarcinoma-csv
 00-database-csv
+over-under-expression-&-CNV-gain-loss/
+

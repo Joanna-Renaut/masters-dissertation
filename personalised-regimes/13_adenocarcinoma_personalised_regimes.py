@@ -20,7 +20,9 @@ clinical_trial_drugs = pandas.read_csv(
 repositionable_drugs = pandas.read_csv(
     "../00-database-csv/adenocarcinoma_SSL_druggable_targets.csv", header=0, sep=","
 )
-
+repositionable_onco_drugs = pandas.read_csv(
+    "../00-database-csv/adenocarcinoma_oncogenes_cansar_full.csv", header=0, sep=","
+)
 
 # # # 1. compare approved drugs against adenocarcinoma patients
 gene_name = "Gene Name"
@@ -187,8 +189,63 @@ repositionable_final.to_csv(
     ".csv"
 )
 
+# # # 4. compare repositionable oncogene drugs against squamous cell patients
+repositionable_onco_drugs.rename(columns={"Drugs": "Drug Name"}, inplace=True)
 
-# # # 4. concatenate the data into one file
+gene_name = "Gene Name"
+drugs = "Drug Name"
+respositionable = "Drug Status"
+repositionable_vs_patients = repositionable_onco_drugs.loc[
+    repositionable_onco_drugs["Gene Name"].isin(patients["GENE_NAME"])
+][[gene_name, drugs, respositionable]]
+# print(approved_vs_patients)
+
+# # # strip the p from mutations
+patients[" MUTATION_AA"] = patients[" MUTATION_AA"].str.lstrip("p.")
+# print(patients[' MUTATION_AA'])
+
+# # # get patient ids and genes
+patient = " ID_SAMPLE"
+gene = "GENE_NAME"
+mutation_aa = " MUTATION_AA"
+mutation = " MUTATION_DESCRIPTION"
+patients_vs_repositionable = patients.loc[
+    patients["GENE_NAME"].isin(repositionable_onco_drugs["Gene Name"])
+][[patient, gene, mutation_aa, mutation]]
+# print(patients_vs_approved)
+
+# # #  merge the columns to get lists of patient id, genes and drugs
+merge_columns = repositionable_vs_patients.merge(
+    patients_vs_repositionable, left_on="Gene Name", right_on="GENE_NAME"
+)
+# print(merge_columns)
+
+# # # drop the extra gene name column
+drop_column = merge_columns.drop(["GENE_NAME"], axis=1)
+drop_column.rename(
+    columns={
+        " ID_SAMPLE": "Patient ID",
+        " MUTATION_AA": "Mutation Aa",
+        " MUTATION_DESCRIPTION": "Mutation Description",
+    },
+    inplace=True,
+)
+# print(drop_column)
+# print(type(drop_duplicate_column))
+
+# # # sort ID_SAMPLE by ID
+repositionable_onco_final = drop_column.set_index("Patient ID")
+repositionable_onco_final.reset_index()
+repositionable_onco_final.sort_values(by=["Patient ID"], inplace=True)
+repositionable_onco_final = repositionable_onco_final.drop_duplicates()
+print(repositionable_onco_final)
+repositionable_onco_final.to_csv(
+    "../personalised-regimes/personalised-regimes-csv/13_adenocarcinoma_onco_"
+    "repositionable_final.csv"
+)
+
+
+# # # 5. concatenate the data into one file
 
 approved_final = pandas.read_csv(
     "../personalised-regimes/personalised-regimes-csv/13_adenocarcinoma_approved_final.csv",
@@ -200,15 +257,21 @@ ct_final = pandas.read_csv(
     header=0,
     sep=",",
 )
-repositionable_final = pandas.read_csv(
+repositionable_SSL_final = pandas.read_csv(
     "../personalised-regimes/personalised-regimes-csv/13_adenocarcinoma_"
     "repositionable_final.csv",
     header=0,
     sep=",",
 )
+repositionable_onco_final = pandas.read_csv(
+    "../personalised-regimes/personalised-regimes-csv/13_adenocarcinoma_onco"
+    "_repositionable_final.csv",
+    header=0,
+    sep=",",
+)
 
 
-data = [approved_final, ct_final, repositionable_final]
+data = [approved_final, ct_final, repositionable_SSL_final, repositionable_onco_final]
 
 complete = pandas.concat(data)
 complete.sort_values(by=["Patient ID"], inplace=True)
@@ -242,7 +305,7 @@ print(complete)
 complete.to_csv("FINAL_adenocarcinoma_complete_patient_regimes.csv", index=False)
 
 
-# # # 5. count how many patients are treated with each treatment type
+# # # 6. count how many patients are treated with each treatment type
 patient_count = complete.value_counts("Patient ID")
 print(patient_count)
 
@@ -252,5 +315,8 @@ print(x)
 x = ct_final["Patient ID"].value_counts()
 print(x)
 
-x = repositionable_final["Patient ID"].value_counts()
+x = repositionable_SSL_final["Patient ID"].value_counts()
+print(x)
+
+x = repositionable_onco_final["Patient ID"].value_counts()
 print(x)

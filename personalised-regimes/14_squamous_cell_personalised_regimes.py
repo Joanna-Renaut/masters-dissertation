@@ -25,7 +25,7 @@ repositionable_onco_drugs = pandas.read_csv(
 )
 
 
-# # # 1. compare approved drugs against adenocarcinoma patients
+# # # 1. compare approved drugs against squamous cell patients
 gene_name = "Gene Name"
 drugs = "Drug Name"
 approved = "Drug Status"
@@ -78,7 +78,7 @@ approved_final.to_csv(
 )
 
 
-# # # 2. compare clinical trial drugs against adenocarcinoma patients
+# # # 2. compare clinical trial drugs against squamous cell patients
 gene_name = "Gene Name"
 drugs = "Drug Name"
 clinical_trial = "Drug Status"
@@ -131,7 +131,7 @@ ct_final.to_csv(
 )
 
 
-# # # 3. compare repositionable SSL drugs against adenocarcinoma patients
+# # # 3. compare repositionable SSL drugs against squamous cell patients
 repositionable_SSL_drugs.rename(
     columns={"Drugs": "Drug Name", "Gene Name B": "SSL Partner"}, inplace=True
 )
@@ -192,7 +192,7 @@ repositionable_SSL_final.to_csv(
 )
 
 
-# # # 4. compare repositionable drugs against adenocarcinoma patients
+# # # 4. compare repositionable oncogene drugs against squamous cell patients
 repositionable_onco_drugs.rename(columns={"Drugs": "Drug Name"}, inplace=True)
 
 gene_name = "Gene Name"

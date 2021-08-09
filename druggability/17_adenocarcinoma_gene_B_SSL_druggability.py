@@ -61,6 +61,21 @@ merge_three = pandas.merge(
 )
 # print(merge_three)
 
+merge_three.drop_duplicates(inplace=True)
+
+# # # get total number of SSL targets for each gene
+df = merge_three[['Gene Name A', 'Gene Name']]
+df.drop_duplicates(inplace=True)
+
+count = df.groupby(['Gene Name A', 'Gene Name']).size().to_frame('Counts').reset_index()
+print(count)
+
+total = (
+    count.groupby("Gene Name A")["Counts"]
+    .sum('Counts')
+)
+print(total)
+
 druggability_data = merge_three
 
 # # # 4. Create columns for the counts of each of the drugs and then merge to one file
